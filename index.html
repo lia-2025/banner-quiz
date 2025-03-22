@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブルアカガチャバナークイズ</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; }
+        #result-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; }
+        #resultImage {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-top: 10px;
+            display: none;
+        }
+        #score { display: none; font-size: 20px; font-weight: bold; margin-top: 20px; }
+        #screenshotButton { display: none; margin-top: 20px; padding: 10px; font-size: 16px; margin: 20px auto; }
+        #passButton { margin-top: 10px; padding: 10px; font-size: 16px; }
+        #questionText { font-size: 18px; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>ブルアカガチャバナークイズ</h1>
+    <p id="questionText">問題がここに表示されます</p>
+    <br>
+    <input type="text" id="answer" placeholder="答えを入力">
+    <button onclick="checkAnswer()">回答</button>
+    <button id="passButton" onclick="passQuestion()">パス</button>
+
+    <div id="result-container">
+        <p id="result"></p>
+        <img id="resultImage" src="" alt="結果の画像">
+    </div>
+    <p id="score"></p>
+    <button id="screenshotButton" onclick="takeScreenshot()">スクリーンショットを撮る</button>
+
+    <script>
+        let allQuestions = [
+            { questionText:"夜明けに珈琲を 手の甲に誓いを", answer: ["アコ"], image: "r4.jpg" },
+            { questionText:"花散らす仮面舞踏会", answer: ["アズサ","ハナコ"], image: "r5.jpg" },
+            { questionText:"徒桜を拾い集めて", answer: ["アツコ"], image: "r7.jpg" },
+            { questionText:"機械たちは旅立ちの夢を見るか？", answer: ["アリス"], image: "r9.jpg" },
+            { questionText:"悪は一日にして成らず", answer: ["アル"], image: "r10.jpg" },
+            { questionText:"Snipe the target L-seven!", answer: ["イオリ"], image: "r11.jpg" },
+            { questionText:"祭り囃子はしのぶれど", answer: ["イズナ","シズコ"], image: "r12.jpg" },
+            { questionText:"そして正義はいつも隣から！", answer: ["イチカ"], image: "r14.jpg" },
+            { questionText:"色は隠れど 咲きぬるを", answer: ["イロハ"], image: "r16.jpg" },
+            { questionText:"声無き言葉たちの残花", answer: ["ウイ"], image: "r17.jpg" },
+            { questionText:"胸燃ゆる理想の可変性", answer: ["エイミ"], image: "r19.jpg" },
+            { questionText:"我が身終ぞ 常ならむ！", answer: ["カエデ"], image: "r20.jpg" },
+            { questionText:"黒猫は甘い夢の中で", answer: ["カズサ"], image: "r21.jpg" },
+            { questionText:"温泉を始めるのなら爆破から！", answer: ["カスミ"], image: "r22.jpg" },
+            { questionText:"好きの奥山　添い遂げて", answer: ["カホ"], image: "r23.jpg" },
+            { questionText:"ご奉仕は火力支援のあとで", answer: ["カリン"], image: "r25.jpg" },
+            { questionText:"正義は珈琲のように甘く", answer: ["カンナ"], image: "r26.jpg" },
+            { questionText:"おもい忍ばせ 進めよ乙女", answer: ["キキョウ"], image: "r27.jpg" },
+            { questionText:"黒君は遠き慮り有りて", answer: ["キサキ"], image: "r28.jpg" },
+            { questionText:"巻いてこMy take on！", answer: ["キララ"], image: "r29.jpg" },
+            { questionText:"やがて未来に変わる庇護", answer: ["キリノ","シュン"], image: "r30.jpg" },
+            { questionText:"しずこころなく梅咲き誇る！", answer: ["ココナ"], image: "r31.jpg" },
+            { questionText:"淫らを温ねて正しきを知るっ", answer: ["コハル"], image: "r34.jpg" },
+            { questionText:"解に導く番狂わせ", answer: ["コユキ"], image: "r35.jpg" },
+            { questionText:"雪代水は廻り行く", answer: ["サオリ"], image: "r36.jpg" },
+            { questionText:"こちらRABBIT2、規範はこの脚に", answer: ["サキ"], image: "r37.jpg" },
+            { questionText:"偽りなき信仰の甘果", answer: ["サクラコ"], image: "r38.jpg" },
+            { questionText:"雪夜は星月のしずくに酔って", answer: ["シグレ"], image: "r40.jpg" },
+            { questionText:"未来のどけき梅の園", answer: ["シュン"], image: "r44.jpg" },
+            { questionText:"親愛なる、はじまりの君へ", answer: ["シロコ"], image: "r46.jpg" },
+            { questionText:"培われし努力の不可逆性", answer: ["スミレ"], image: "r48.jpg" },
+            { questionText:"優しく希望は降りしきる", answer: ["セイア"], image: "r49.jpg" },
+            { questionText:"自由意志のもと誇りにかけて", answer: ["セナ"], image: "r50.jpg" },
+            { questionText:"晴れのち失脚、所により大荒れ", answer: ["チェリノ"], image: "r53.jpg" },
+            { questionText:"大聖堂からバザールにかけて", answer: ["チヒロ"], image: "r56.jpg" },
+            { questionText:"星ひとつ、23.4°見上げて", answer: ["ツクヨ"], image: "r57.jpg" },
+            { questionText:"奮い立つグラジオラス", answer: ["ツルギ"], image: "r59.jpg" },
+            { questionText:"Where there's Toki there's victory.", answer: ["トキ"], image: "r60.jpg" },
+            { questionText:"Where there's tea party there's hope.", answer: ["ナギサ"], image: "r62.jpg" },
+            { questionText:"ステンドグラスに誘われて", answer: ["ナツ","マリー"], image: "r63.jpg" },
+            { questionText:"曇り硝子に描く刹那", answer: ["ノア"], image: "r65.jpg" },
+            { questionText:"その味は身命を賭してでも", answer: ["ハルナ"], image: "r72.jpg" },
+            { questionText:"積み上げる尽力の翼", answer: ["ヒナ"], image: "r74.jpg" },
+            { questionText:"故無き力添えの賛歌", answer: ["ヒナタ"], image: "r75.jpg" },
+            { questionText:"閃きよ、この世界を照らして", answer: ["ヒビキ"], image: "r76.jpg" },
+            { questionText:"ひたむきな愛で紡いで", answer: ["ヒフミ"], image: "r77.jpg" },
+            { questionText:"涼やかなる夢想の可能性", answer: ["ヒマリ"], image: "r78.jpg" },
+            { questionText:"木枯らしに目を引かれ", answer: ["ヒヨリ"], image: "r79.jpg" },
+            { questionText:"積み重ねる誓いの翼", answer: ["ホシノ"], image: "r83.jpg" },
+            { questionText:"Paint the school “red” !", answer: ["マキ"], image: "r84.jpg" },
+            { questionText:"我等がために宙は鳴る！", answer: ["マコト"], image: "r85.jpg" },
+            { questionText:"赤の季節、黒の制服", answer: ["マシロ"], image: "r86.jpg" },
+            { questionText:"忠言、耳に突撃", answer: ["マリナ"], image: "r88.jpg" },
+            { questionText:"君は無邪気な夜の希望", answer: ["ミカ"], image: "r89.jpg" },
+            { questionText:"逃げ水を夢に見て", answer: ["ミサキ"], image: "r90.jpg" },
+            { questionText:"共鳴する風信子", answer: ["ミドリ","モモイ"], image: "r92.jpg" },
+            { questionText:"ノワールに唄えば", answer: ["ミナ"], image: "r93.jpg" },
+            { questionText:"ドレスコードは鋼の白衣", answer: ["ミネ"], image: "r94.jpg" },
+            { questionText:"工務の道も一歩から", answer: ["ミノリ"], image: "r95.jpg" },
+            { questionText:"いつか花咲く少女の夢", answer: ["ミモリ"], image: "r96.jpg" },
+            { questionText:"こちらRABBIT1、理想をこの眼に", answer: ["ミヤコ"], image: "r97.jpg" },
+            { questionText:"こちらRABBIT4、証明をこの手に", answer: ["ミユ"], image: "r98.jpg" },
+            { questionText:"義勇は温泉のように熱く！", answer: ["メグ"], image: "r100.jpg" },
+            { questionText:"こちらRABBIT3、計算をこの胸に", answer: ["モエ"], image: "r101.jpg" },
+            { questionText:"夢見る乙女よ 大志を抱け！", answer: ["ユカリ"], image: "r105.jpg" },
+            { questionText:"夢を奏でる春告げのRPG", answer: ["ユズ"], image: "r106.jpg" },
+            { questionText:"合理主義者はかく語れり", answer: ["リオ"], image: "r108.jpg" },
+            { questionText:"はるは短し 走れよ乙女", answer: ["レンゲ"], image: "r109.jpg" },
+            { questionText:"太陽と雨のすれ違い", answer: ["ワカモ"], image: "r110.jpg" },
+            { questionText:"夢を誘ひし しおさいの", answer: ["ウミカ"], image: "r111.jpg" },
+            { questionText:"京極サツキは諦めない", answer: ["サツキ"], image: "r112.jpg" },
+            { questionText:"元宮チアキは見逃さない", answer: ["チアキ"], image: "r113.jpg" },
+            { questionText:"ペンは銃より強し！", answer: ["メル","モミジ"], image: "r114.jpg" },
+            { questionText:"カンパニーで飲茶を！", answer: ["ルミ"], image: "r115.jpg" },
+            { questionText:"挑戦は甘い夢の外で！", answer: ["レイサ"], image: "r116.jpg" },
+            { questionText:"行は是れ武のカンフー！", answer: ["レイジョ"], image: "r117.jpg" },
+            { questionText:"ただ四囲は夢幻なりや？", answer: ["アズサ"], image: "r118.jpg" },
+            { questionText:"正しいは無限なりや！", answer: ["マシロ"], image: "r119.jpg" },
+            { questionText:"駆け出した向日葵の憧れ", answer: ["ヒフミ"], image: "r120.jpg" },
+            { questionText:"海統べる寄り添いの月光", answer: ["ヒナ"], image: "r121.jpg" },
+            { questionText:"夏乱す容赦なき太陽", answer: ["イオリ"], image: "r122.jpg" },
+            { questionText:"吹き抜ける風の在り処", answer: ["シロコ"], image: "r123.jpg" },
+            { questionText:"年がら年中無我夢チュー！", answer: ["サヤ"], image: "r124.jpg" },
+            { questionText:"問答無用のストレートアップ", answer: ["ネル"], image: "r125.jpg" },
+            { questionText:"着替えたらジャックポットを", answer: ["カリン"], image: "r126.jpg" },
+            { questionText:"無軌道なハットトリック", answer: ["アスナ"], image: "r127.jpg" },
+            { questionText:"革命と極楽のオートノミー", answer: ["チェリノ"], image: "r128.jpg" },
+            { questionText:"責務と休息のアンティノミー", answer: ["チナツ"], image: "r129.jpg" },
+            { questionText:"湯けむりは星月夜に溶けて ", answer: ["ノドカ"], image: "r130.jpg" },
+            { questionText:"あらたまの 年も事業も かくしこそ", answer: ["アル"], image: "r131.jpg" },
+            { questionText:"四つ手重ねて たのしきをつめ", answer: ["ムツキ"], image: "r132.jpg" },
+            { questionText:"巫女は隣で丸くなる", answer: ["セリカ"], image: "r133.jpg" },
+            { questionText:"笑顔よ続け、夏の日に", answer: ["ノノミ"], image: "r134.jpg" },
+            { questionText:"想いよ開け、夏の夜に", answer: ["ワカモ"], image: "r135.jpg" },
+            { questionText:"黄昏れから水面へと", answer: ["ホシノ"], image: "r136.jpg" },
+            { questionText:"色に出でにけりわが夏は", answer: ["イズナ"], image: "r137.jpg" },
+            { questionText:"ものや詠もうと心問ふまで", answer: ["チセ"], image: "r138.jpg" },
+            { questionText:"昼下がりのロイヤルフラッシュ", answer: ["アカネ"], image: "r139.jpg" },
+            { questionText:"理性と情熱のEquation", answer: ["ユウカ"], image: "r140.jpg" },
+            { questionText:"憧憬と慈愛のDevotion", answer: ["マリー"], image: "r141.jpg" },
+            { questionText:"雪夜に贈るぬくもりのハレルヤ！", answer: ["ハナエ"], image: "r142.jpg" },
+            { questionText:"聖夜に響く慈愛のキャロル", answer: ["セリナ"], image: "r143.jpg" },
+            { questionText:"あたらしき 年になれども 食道楽", answer: ["ハルナ"], image: "r144.jpg" },
+            { questionText:"馳走のこころは かはらざりけり", answer: ["フウカ"], image: "r145.jpg" },
+            { questionText:"初春の　音の絆も　かくしこそ", answer: ["カヨコ"], image: "r146.jpg" },
+            { questionText:"千草たばねて　しあわせをつめ", answer: ["ハルカ"], image: "r147.jpg" },
+            { questionText:"メイド勇者は不思議な世界の夢を見る", answer: ["アリス"], image: "r148.jpg" },
+            { questionText:"遅刻ウサギのワイルドカード", answer: ["トキ"], image: "r149.jpg" },
+            { questionText:"微速前進 安らぎの浜辺へ", answer: ["ミヤコ"], image: "r150.jpg" },
+            { questionText:"急速潜航 活路は水底に", answer: ["サキ"], image: "r151.jpg" },
+            { questionText:"願いよ響け、夏空に", answer: ["シロコ"], image: "r152.jpg" },
+            { questionText:"灼熱無き隠れ家の燦夏", answer: ["ウイ"], image: "r153.jpg" },
+            { questionText:"白波凪ぐ安息日の残火", answer: ["ヒナタ"], image: "r154.jpg" },
+            { questionText:"しどけなく水面揺らす十日", answer: ["ハナコ"], image: "r155.jpg" },
+            { questionText:"過ぐるものとは 知りながら", answer: ["ミモリ"], image: "r156.jpg" },
+            { questionText:"晴れ空に響く情熱", answer: ["ウタハ"], image: "r157.jpg" },
+            { questionText:"明け空に説く こころ模様", answer: ["コトリ"], image: "r158.jpg" },
+            { questionText:"未知と探求のReformation", answer: ["ハルナ"], image: "r159.jpg" },
+            { questionText:"心躍る予想の可用性", answer: ["エイミ"], image: "r160.jpg" },
+            { questionText:"暁光にとける感情の音", answer: ["コタマ"], image: "r161.jpg" },
+            { questionText:"天体より注ぐ情報の光", answer: ["ハレ"], image: "r162.jpg" },
+            { questionText:"天に仕うはすべて音", answer: ["アコ"], image: "r163.jpg" },
+            { questionText:"優しい空の奏で方", answer: ["ヒナ"], image: "r164.jpg" },
+            { questionText:"美しく明けきメタル", answer: ["カヨコ"], image: "r165.jpg" },
+            { questionText:"悪党円舞曲", answer: ["アル"], image: "r166.jpg" },
+            { questionText:"幾重のかをり 早たちにけり", answer: ["アカリ"], image: "r167.jpg" },
+            { questionText:"夢を守りし はるはなの", answer: ["ツバキ"], image: "r168.jpg" },
+            { questionText:"Ain't too proud to rely on!", answer: ["ヨシミ"], image: "r169.jpg" },
+            { questionText:"Who says you can't be sweet", answer: ["カズサ"], image: "r170.jpg" },
+            { questionText:"掃海する複素共役", answer: ["ミドリ"], image: "r171.jpg" },
+            { questionText:"掃天する複素共役", answer: ["モモイ"], image: "r172.jpg" },
+            { questionText:"希望よ届け、夏風に", answer: ["セリカ"], image: "r173.jpg" },
+            { questionText:"監視員、了解。ドーナッツアイス食べたらね", answer: ["フブキ"], image: "r174.jpg" },
+            { questionText:"司令室より監視員、スライダーに急行を", answer: ["カンナ"], image: "r175.jpg" },
+            { questionText:"緊急浮上 泡影を導べに", answer: ["モエ"], image: "r176.jpg" },
+            { questionText:"片時雨を白日が覆って", answer: ["ヒヨリ"], image: "r177.jpg" },
+            { questionText:"花曇りに白波を映して", answer: ["サオリ"], image: "r178.jpg" },
+            { questionText:"雪の上に立つ三日天下", answer: ["マリナ"], image: "r179.jpg" },
+            { questionText:"雪の下に咲く二十一日", answer: ["トモエ"], image: "r180.jpg" },
+            { questionText:"オリーブに祈る平和の詩", answer: ["サクラコ"], image: "r181.jpg" },
+            { questionText:"ラボニに捧ぐ輝きの詠", answer: ["マリー"], image: "r182.jpg" },
+            { questionText:"静寂に満ちる回想録", answer: ["ノア"], image: "r183.jpg" },
+            { questionText:"夜明けに贈る方程式", answer: ["ユウカ"], image: "r184.jpg" },
+            { questionText:"気ままな太陽は空の下", answer: ["アスナ"], image: "r185.jpg" },
+            { questionText:"自由主義者はとく駆けり", answer: ["ネル"], image: "r186.jpg" },
+            { questionText:"晴天彩る情熱の色", answer: ["マキ"], image: "r187.jpg" },
+            { questionText:"隠し味は努力と笑顔", answer: ["ジュリ"], image: "r188.jpg" },
+            { questionText:"自由な午後にときめきを", answer: ["セナ"], image: "r189.jpg" },
+            { questionText:"今年こそ 煌めく美食に 舌鼓！", answer: ["イズミ"], image: "r190.jpg" },
+            { questionText:"あの場所は約束の最中", answer: ["ホシノ"], image: "r191.jpg" },
+            { questionText:"雪夜は星月のしずくに酔って", answer: ["シグレ"], image: "r192.jpg" },
+        ];
+
+        let questions = allQuestions.slice().sort(() => Math.random() - 0.5).slice(0, 10);
+        let currentQuestion = 0;
+        let score = 0;
+
+        function showQuestion() {
+            document.getElementById("questionText").innerText = questions[currentQuestion].questionText;
+        }
+
+        function checkAnswer() {
+            let userAnswer = document.getElementById("answer").value.trim();
+            let resultElement = document.getElementById("result");
+            let resultImage = document.getElementById("resultImage");
+            let correctAnswer = questions[currentQuestion].answer;
+
+            if (Array.isArray(correctAnswer)) {
+                if (correctAnswer.includes(userAnswer)) {
+                    resultElement.innerText = "正解！";
+                    score++;
+                } else {
+                    resultElement.innerText = "不正解！";
+                }
+            } else {
+                if (userAnswer === correctAnswer) {
+                    resultElement.innerText = "正解！";
+                    score++;
+                } else {
+                    resultElement.innerText = "不正解！";
+                }
+            }
+
+            resultImage.src = questions[currentQuestion].image + "?v=" + new Date().getTime();
+            resultImage.style.display = "block";
+
+            moveToNextQuestion();
+        }
+
+        function passQuestion() {
+            let resultElement = document.getElementById("result");
+            let resultImage = document.getElementById("resultImage");
+
+            resultElement.innerText = "不正解！（パス）";
+            resultImage.src = questions[currentQuestion].image + "?v=" + new Date().getTime();
+            resultImage.style.display = "block";
+
+            moveToNextQuestion();
+        }
+
+        function moveToNextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                setTimeout(() => {
+                    document.getElementById("result").innerText = "";
+                    document.getElementById("resultImage").style.display = "none";
+                    document.getElementById("answer").value = "";
+                    showQuestion();
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    document.getElementById("score").innerText = `先生のスコア: ${score} / ${questions.length}`;
+                    document.getElementById("score").style.display = "block";
+                    document.getElementById("screenshotButton").style.display = "block";
+                }, 2000);
+            }
+        }
+
+        function takeScreenshot() {
+            html2canvas(document.body, { useCORS: true }).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = "quiz_result.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch(error => {
+                console.error("スクリーンショットの取得に失敗しました", error);
+                alert("スクリーンショットの保存に失敗しました。ページを再読み込みして試してください。");
+            });
+        }
+
+        showQuestion();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
